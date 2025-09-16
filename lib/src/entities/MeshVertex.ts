@@ -20,6 +20,14 @@ export default class MeshVertex {
     this.uv = uv;
   }
 
+  clone(): MeshVertex {
+    return new MeshVertex(
+      this.position.clone(),
+      this.normal.clone(),
+      this.uv.clone(),
+    );
+  }
+
   /**
    * Returns true if this vertex and another vertex share the same position
    * @param other

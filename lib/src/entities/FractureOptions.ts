@@ -1,4 +1,31 @@
 import { Vector2 } from "../utils/Vector2";
+import { Vector3 } from "../utils/Vector3";
+
+export type VoronoiDistribution =
+  | "uniform"
+  | "clustered"
+  | "radial"
+  | "anisotropic";
+
+export interface VoronoiPatternOptions {
+  type: "Voronoi";
+  seedCount?: number;
+  distribution?: VoronoiDistribution;
+  clusterCount?: number;
+  clusterJitter?: number;
+  radialCenter?: Vector3;
+  radialFalloff?: number;
+  anisotropyStrength?: number;
+  grainDirection?: Vector3;
+}
+
+export interface RandomPatternOptions {
+  type: "Random";
+}
+
+export type FracturePatternOptions =
+  | RandomPatternOptions
+  | VoronoiPatternOptions;
 
 /**
  * Options for the fracture operation
@@ -33,8 +60,13 @@ export class FractureOptions {
 
   /**
    * Offset to apply to texture coordinates
-   */
+  */
   public textureOffset: Vector2 = new Vector2();
+
+  /**
+   * Strategy used to choose fracture planes
+   */
+  public pattern: FracturePatternOptions = { type: "Random" };
 
   constructor({
     fragmentCount,
@@ -42,6 +74,7 @@ export class FractureOptions {
     fractureMode,
     textureScale,
     textureOffset,
+    pattern,
   }: {
     fragmentCount?: number;
     fracturePlanes?: {
@@ -52,6 +85,7 @@ export class FractureOptions {
     fractureMode?: "Convex" | "Non-Convex";
     textureScale?: Vector2;
     textureOffset?: Vector2;
+    pattern?: FracturePatternOptions;
   } = {}) {
     if (fragmentCount) {
       this.fragmentCount = fragmentCount;
@@ -71,6 +105,17 @@ export class FractureOptions {
 
     if (textureOffset) {
       this.textureOffset = textureOffset;
+    }
+
+    if (pattern) {
+      if (pattern.type === "Voronoi") {
+        this.pattern = {
+          distribution: "uniform",
+          ...pattern,
+        };
+      } else {
+        this.pattern = pattern;
+      }
     }
   }
 }
