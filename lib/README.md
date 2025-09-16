@@ -54,6 +54,7 @@ The core libraries are for 3D applications that do not use Three.js, e.g., PlayC
 - Support for non-convex meshes
 - Customizable material for fractured faces
 - Configurable number of fragments
+- Voronoi fracture patterns (uniform, clustered, radial, anisotropic)
 - TypeScript support
 
 ## Installation
@@ -129,6 +130,21 @@ function animate() {
 }
 
 animate();
+```
+
+To emulate specific materials you can switch to a Voronoi-based fracture pattern:
+
+```typescript
+const options = new PINATA.FractureOptions({
+  fragmentCount: 24,
+  pattern: {
+    type: "Voronoi",
+    distribution: "radial",
+    seedCount: 24,
+    radialCenter: new PINATA.Vector3(0, 0, 0),
+    radialFalloff: 0.4,
+  },
+});
 ```
 
 ## Restrictions

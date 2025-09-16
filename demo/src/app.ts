@@ -4,6 +4,12 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { Demo } from "./types/Demo";
 import { PhysicsDemo } from "./examples/physics";
 import { ExplodeDemo } from "./examples/explode";
+import {
+  UniformVoronoiDemo,
+  ClusteredVoronoiDemo,
+  RadialVoronoiDemo,
+  AnisotropicVoronoiDemo,
+} from "./examples/voronoi";
 import { ThreePerf } from "three-perf";
 
 // Add imports for postprocessing
@@ -83,6 +89,25 @@ const demoOptions = {
 // Initialize demos
 const physicsDemo = new PhysicsDemo(camera, controls, RAPIER);
 const explodeDemo = new ExplodeDemo(camera, controls);
+const uniformVoronoiDemo = new UniformVoronoiDemo(camera, controls);
+const clusteredVoronoiDemo = new ClusteredVoronoiDemo(camera, controls);
+const radialVoronoiDemo = new RadialVoronoiDemo(camera, controls);
+const anisotropicVoronoiDemo = new AnisotropicVoronoiDemo(camera, controls);
+
+const demoRegistry: Record<string, Demo> = {
+  Physics: physicsDemo,
+  Explode: explodeDemo,
+  "Voronoi: Uniform Stone": uniformVoronoiDemo,
+  "Voronoi: Clustered Rubble": clusteredVoronoiDemo,
+  "Voronoi: Radial Impact": radialVoronoiDemo,
+  "Voronoi: Anisotropic Wood": anisotropicVoronoiDemo,
+};
+
+const demoBindingOptions = Object.keys(demoRegistry).reduce(
+  (acc, key) => ({ ...acc, [key]: key }),
+  {} as Record<string, string>,
+);
+
 loadDemo(physicsDemo);
 
 async function loadDemo(demo: Demo) {
@@ -110,24 +135,16 @@ async function loadDemo(demo: Demo) {
 // Add demo selector to GUI
 pane
   .addBinding(demoOptions, "current", {
-    options: {
-      Physics: "Physics",
-      Explode: "Explode",
-    },
+    options: demoBindingOptions,
     label: "Select Demo",
   })
   .on("change", async (ev) => {
-    switch (ev.value) {
-      case "Physics":
-        await loadDemo(physicsDemo);
-        break;
-      case "Explode":
-        await loadDemo(explodeDemo);
-        break;
-      default:
-        console.warn("Unknown demo:", ev.value);
-        return;
+    const nextDemo = demoRegistry[ev.value];
+    if (!nextDemo) {
+      console.warn("Unknown demo:", ev.value);
+      return;
     }
+    await loadDemo(nextDemo);
   });
 
 // Add a separator to the GUI
